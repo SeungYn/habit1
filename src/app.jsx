@@ -1,11 +1,7 @@
-import react from 'react';
+import React, { Component } from 'react';
 import './app.css';
 import Habits from './components/habits';
-
-import React, { Component } from 'react';
-import Header from './components/header';
-import Reset from './components/reset';
-import HabitInputForm from './components/habitInputForm';
+import Navbar from './components/navbar';
 
 class App extends Component {
   state = {
@@ -16,65 +12,53 @@ class App extends Component {
     ],
   };
 
-  onAdd = (name) => {
-    const num = this.state.habits.length;
-    const habits = [...this.state.habits, { id: num + 1, name, count: 0 }];
-    this.setState({ habits });
-  };
-  countSum = () => {
-    let sum = 0;
-    this.state.habits.forEach((h) => {
-      sum = h.count > 0 ? sum + 1 : sum;
-    });
-    return sum;
+  handleIncrement = habit => {
+    const habits = [...this.state.habits];
+    const index = habits.indexOf(habit);
+    habits[index].count++;
+    this.setState({ habit });
   };
 
-  resetAll = () => {
-    const habits = this.state.habits.map((h) => {
-      h.count = 0;
-      return h;
-    });
-    console.log(1);
-    this.setState({ habits });
+  handleDecrement = habit => {
+    const habits = [...this.state.habits];
+    const index = habits.indexOf(habit);
+    const count = habits[index].count - 1;
+    habits[index].count = count < 0 ? 0 : count;
+    this.setState({ habit });
   };
 
-  onIncrement = (habit) => {
-    const habits = this.state.habits.map((h) => {
-      if (habit === h) {
-        h.count += 1;
-      }
-      return h;
-    });
+  handleDelete = habit => {
+    const habits = this.state.habits.filter(item => item.id !== habit.id);
     this.setState({ habits });
   };
 
-  onDecrement = (habit) => {
-    const habits = this.state.habits.map((h) => {
-      if (habit === h) {
-        h.count -= 1;
-        h.count = h.count < 0 ? 0 : h.count;
-      }
-      return h;
+  handleAdd = name => {
+    const habits = [...this.state.habits, { id: Date.now(), name, count: 0 }];
+    this.setState({ habits });
+  };
+
+  handleReset = () => {
+    const habits = this.state.habits.map(habit => {
+      habit.count = 0;
+      return habit;
     });
     this.setState({ habits });
   };
 
-  onDelete = (habit) => {
-    const habits = this.state.habits.filter((h) => h !== habit);
-    this.setState({ habits });
-  };
   render() {
     return (
       <>
-        <Header count={this.countSum()} />
-        <HabitInputForm onAdd={this.onAdd} />
+        <Navbar
+          totalCount={this.state.habits.filter(item => item.count > 0).length}
+        />
         <Habits
           habits={this.state.habits}
-          onIncrement={this.onIncrement}
-          onDecrement={this.onDecrement}
-          onDelete={this.onDelete}
+          onIncrement={this.handleIncrement}
+          onDecrement={this.handleDecrement}
+          onDelete={this.handleDelete}
+          onAdd={this.handleAdd}
+          onReset={this.handleReset}
         />
-        <Reset resetAll={this.resetAll} />
       </>
     );
   }
